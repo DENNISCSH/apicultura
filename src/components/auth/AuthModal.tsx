@@ -21,7 +21,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const API_URL = 'http://localhost:5000/api/auth';
+  const API_URL = `${import.meta.env.VITE_API_URL}/api/auth`;
+
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
