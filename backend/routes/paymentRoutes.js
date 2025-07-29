@@ -28,9 +28,9 @@ router.post('/create_preference', async (req, res) => {
    const preference = await mercadopago.preferences.create({
   items,
   back_urls: {
-    success: "http://localhost:5173/success",
-    failure: "http://localhost:5173/failure",
-    pending: "http://localhost:5173/pending"
+    success: "https://apicultura-nnxr.onrender.com/success",
+    failure: "https://apicultura-nnxr.onrender.com/failure",
+    pending: "https://apicultura-nnxr.onrender.com/pending"
   }
 });
 
