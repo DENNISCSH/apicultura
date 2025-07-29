@@ -34,25 +34,25 @@ export const CartModal: React.FC<CartModalProps> = ({ isOpen, onClose }) => {
 
   // FUNCIÓN PARA PROCESAR PAGO
   const handleCheckout = async () => {
-  try {
-    const response = await fetch('http://localhost:5000/create_preference', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ items: state.items })
-    });
+    try {
+      const response = await fetch('https://apicultura-nnxr.onrender.com/create_preference', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items: state.items })
+      });
 
-    const data = await response.json();
+      const data = await response.json();
 
-    if (data.init_point) {
-      window.location.href = data.init_point; // Redirige al pago de MercadoPago
-    } else {
-      alert('Error al iniciar el pago');
+      if (data.init_point) {
+        window.location.href = data.init_point; // Redirige al pago de MercadoPago
+      } else {
+        alert('Error al iniciar el pago');
+      }
+    } catch (error) {
+      console.error('Error en checkout:', error);
+      alert('Hubo un problema con el pago');
     }
-  } catch (error) {
-    console.error('Error en checkout:', error);
-    alert('Hubo un problema con el pago');
-  }
-};
+  };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Carrito de Compras" size="lg">
