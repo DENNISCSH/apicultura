@@ -1,39 +1,47 @@
-import express from "express";
-import mercadopago from "mercadopago";
-
+const express = require('express');
 const router = express.Router();
+const mercadopago = require('mercadopago');
 
-// Configurar MercadoPago
+// Configurar MercadoPago con el token del .env
 mercadopago.configure({
-  access_token: process.env.MERCADOPAGO_ACCESS_TOKEN // Guarda tu token en .env
+  access_token: process.env.MERCADOPAGO_ACCESS_TOKEN
 });
 
-// Crear preferencia de pago
-router.post("/create_preference", async (req, res) => {
+// Ruta para crear preferencia de pago
+router.post('/create_preference', async (req, res) => {
   try {
-    const { items } = req.body;
+    // Log para depuración
+    console.log("Datos recibidos del frontend:", req.body);
 
-    const preference = {
-      items: items.map(item => ({
-        title: item.title,
-        unit_price: item.unit_price,
-        quantity: item.quantity,
-        currency_id: "PEN" // soles
-      })),
-      back_urls: {
-        success: "http://localhost:5173/success",
-        failure: "http://localhost:5173/failure",
-        pending: "http://localhost:5173/pending"
-      },
-      auto_return: "approved"
-    };
+    // Transformar items que llegan del carrito
+   const items = req.body.items.map(item => ({
+  title: item.product.name,
+  unit_price: Number(item.product.price), // Convertimos a número
+  quantity: item.quantity,
+  currency_id: "PEN"
+}));
 
-    const response = await mercadopago.preferences.create(preference);
-    res.json({ init_point: response.body.init_point });
-  } catch (error) {
-    console.error("Error al crear preferencia:", error);
-    res.status(500).json({ error: "Error al crear preferencia" });
+
+    console.log("Items para MercadoPago:", items);
+
+    // Crear preferencia en MercadoPago
+   const preference = await mercadopago.preferences.create({
+  items,
+  back_urls: {
+    success: "http://localhost:5173/success",
+    failure: "http://localhost:5173/failure",
+    pending: "http://localhost:5173/pending"
   }
 });
 
-export default router;
+
+    // Enviar al frontend el link de pago
+    res.json({ init_point: preference.body.init_point });
+
+  } catch (error) {
+    console.error("Error al crear preferencia:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+module.exports = router;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Plus, Minus, ShoppingBag, Trash2 } from 'lucide-react';
+import { Plus, Minus, ShoppingBag, Trash2 } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { Modal } from '../ui/Modal';
 import { Button } from '../ui/Button';
@@ -32,33 +32,27 @@ export const CartModal: React.FC<CartModalProps> = ({ isOpen, onClose }) => {
     dispatch({ type: 'CLEAR_CART' });
   };
 
-  // NUEVA FUNCIÓN PARA PROCESAR PAGO
+  // FUNCIÓN PARA PROCESAR PAGO
   const handleCheckout = async () => {
-    try {
-      const response = await fetch('http://localhost:3000/create_preference', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          items: state.items.map(({ product, quantity }) => ({
-            title: product.name,
-            quantity: quantity,
-            unit_price: product.price
-          }))
-        })
-      });
+  try {
+    const response = await fetch('http://localhost:5000/create_preference', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items: state.items })
+    });
 
-      const data = await response.json();
+    const data = await response.json();
 
-      if (data.init_point) {
-        window.location.href = data.init_point; // Redirige al checkout de MercadoPago
-      } else {
-        alert('Error al iniciar el pago');
-      }
-    } catch (error) {
-      console.error('Error en checkout:', error);
-      alert('Hubo un problema con el pago');
+    if (data.init_point) {
+      window.location.href = data.init_point; // Redirige al pago de MercadoPago
+    } else {
+      alert('Error al iniciar el pago');
     }
-  };
+  } catch (error) {
+    console.error('Error en checkout:', error);
+    alert('Hubo un problema con el pago');
+  }
+};
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Carrito de Compras" size="lg">
@@ -154,7 +148,6 @@ export const CartModal: React.FC<CartModalProps> = ({ isOpen, onClose }) => {
 
             {/* Actions */}
             <div className="space-y-3">
-              {/* BOTÓN DE PAGO */}
               <Button size="lg" className="w-full" onClick={handleCheckout}>
                 Proceder al Pago
               </Button>
@@ -168,12 +161,6 @@ export const CartModal: React.FC<CartModalProps> = ({ isOpen, onClose }) => {
                 </Button>
               </div>
             </div>
-
-            {state.total < 25000 && (
-              <div className="bg-primary-50 border border-primary-200 rounded-lg p-4">
-                {/* Mensaje de envío gratuito opcional */}
-              </div>
-            )}
           </>
         )}
       </div>
